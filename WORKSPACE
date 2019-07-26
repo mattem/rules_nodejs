@@ -50,6 +50,16 @@ load("//packages:index.bzl", "NESTED_PACKAGES")
     path = "packages/%s/src" % name,
 ) for name in NESTED_PACKAGES]
 
+local_repository(
+    name = "npm_bazel_terser",
+    path = "packages/terser/src",
+)
+
+local_repository(
+    name = "npm_bazel_rollup",
+    path = "packages/rollup/src",
+)
+
 #
 # Install rules_nodejs dev dependencies
 #
