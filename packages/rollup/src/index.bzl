@@ -32,8 +32,15 @@ def _run_rollup(inputs, outputs):
     )
 
 def _rollup_bundle(ctx):
-    outputs = [ctx.outputs.bundle]
-    args = ctx.actions.args()
+    outputs = []
+    args = ctx.actions.Args()
+
+    ctx.actions.run(
+        inputs = [],
+        outputs = outputs,
+        executable = ctx.executable.rollup_bin,
+        arguments = [args],
+    )
 
     return [
         DefaultInfo(files = depset(outputs)),
