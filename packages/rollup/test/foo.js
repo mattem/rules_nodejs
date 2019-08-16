@@ -3,8 +3,9 @@ import hello from 'hello';
 import {thing} from 'some_global_var';
 
 import {name} from './bar';
+import {json_key} from './some.json';
 
-console.log(`${hello}, ${name} in ${fum}`);
+console.log(`${hello}, ${name} in ${fum} ${json_key}`);
 
 // Tests for @PURE annotations
 /*@__PURE__*/

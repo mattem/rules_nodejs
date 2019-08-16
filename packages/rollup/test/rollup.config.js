@@ -1,3 +1,5 @@
+import json from 'rollup-plugin-json';
+
 module.exports = {
   output: {
     name: 'bundle',
@@ -8,5 +10,8 @@ module.exports = {
  * This is version v0.0.0-PLACEHOLDER
  */
 `
-  }
+  },
+  plugins: [
+    json({preferConst: true}),
+  ],
 };

@@ -43,7 +43,7 @@ def run_rollup(ctx, sources, config, output):
     args.add_all(["--format", ctx.attr.format])
     args.add_all(["--config", config.path])
     args.add_all(["--output.file", output.path])
-    direct_inputs = [config, ctx.file.entry_point]
+    direct_inputs = [config, ctx.file.entry_point] + ctx.files.deps
     outputs = [output]
     ctx.actions.run(
         progress_message = "Bundling JavaScript %s [rollup]" % output.short_path,
@@ -54,15 +54,7 @@ def run_rollup(ctx, sources, config, output):
     )
 
 def _rollup_bundle(ctx):
-    outputs = []
-    args = ctx.actions.Args()
-
-    ctx.actions.run(
-        inputs = [],
-        outputs = outputs,
-        executable = ctx.executable.rollup_bin,
-        arguments = [args],
-    )
+    run_rollup(ctx, depset(ctx.files.srcs), ctx.file.config_file, ctx.outputs.bundle)
 
     return [
         DefaultInfo(files = depset([ctx.outputs.bundle])),

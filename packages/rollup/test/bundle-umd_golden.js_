@@ -4,32 +4,34 @@
  */
 
 (function (global, factory) {
-  typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('fumlib'), require('hello'), require('some_global_var')) :
-  typeof define === 'function' && define.amd ? define(['exports', 'fumlib', 'hello', 'some_global_var'], factory) :
-  (global = global || self, factory(global.bundle = {}, global.fumlib, global.hello, global.runtime_name_of_global_var));
+    typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports, require('fumlib'), require('hello'), require('some_global_var')) :
+    typeof define === 'function' && define.amd ? define(['exports', 'fumlib', 'hello', 'some_global_var'], factory) :
+    (global = global || self, factory(global.bundle = {}, global.fumlib, global.hello, global.runtime_name_of_global_var));
 }(this, function (exports, fumlib, hello, some_global_var) { 'use strict';
 
-  hello = hello && hello.hasOwnProperty('default') ? hello['default'] : hello;
+    hello = hello && hello.hasOwnProperty('default') ? hello['default'] : hello;
 
-  const name = 'Alice';
+    const json_key = "json_value";
 
-  console.log(`${hello}, ${name} in ${fumlib.fum}`);
+    const name = 'Alice';
 
-  // Test for sequences = false
-  class A {
-    a() {
-      return document.a;
+    console.log(`${hello}, ${name} in ${fumlib.fum} ${json_key}`);
+
+    // Test for sequences = false
+    class A {
+      a() {
+        return document.a;
+      }
     }
-  }
-  function inline_me() {
-    return 'abc';
-  }
-  console.error(new A().a(), inline_me(), some_global_var.thing, ngDevMode, ngI18nClosureMode);
-  ngDevMode && console.log('ngDevMode is truthy');
-  ngI18nClosureMode && console.log('ngI18nClosureMode is truthy');
+    function inline_me() {
+      return 'abc';
+    }
+    console.error(new A().a(), inline_me(), some_global_var.thing, ngDevMode, ngI18nClosureMode);
+    ngDevMode && console.log('ngDevMode is truthy');
+    ngI18nClosureMode && console.log('ngI18nClosureMode is truthy');
 
-  exports.A = A;
+    exports.A = A;
 
-  Object.defineProperty(exports, '__esModule', { value: true });
+    Object.defineProperty(exports, '__esModule', { value: true });
 
 }));
