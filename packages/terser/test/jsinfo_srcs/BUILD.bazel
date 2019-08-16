@@ -7,8 +7,7 @@ load(":produces_jsinfo.bzl", "produces_jsinfo")
 
 produces_jsinfo(
     name = "in",
-    esnext_srcs = ["esnext.mjs"],
-    named_srcs = ["named.umd.js"],
+    srcs = ["esnext.mjs"],
 )
 
 terser_minified(

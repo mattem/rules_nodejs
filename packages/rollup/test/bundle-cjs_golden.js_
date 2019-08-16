@@ -1,0 +1,33 @@
+/**
+ * @license A dummy license banner that goes at the top of the file.
+ * This is version v0.0.0-PLACEHOLDER
+ */
+
+'use strict';
+
+Object.defineProperty(exports, '__esModule', { value: true });
+
+function _interopDefault (ex) { return (ex && (typeof ex === 'object') && 'default' in ex) ? ex['default'] : ex; }
+
+var fumlib = require('fumlib');
+var hello = _interopDefault(require('hello'));
+var some_global_var = require('some_global_var');
+
+const name = 'Alice';
+
+console.log(`${hello}, ${name} in ${fumlib.fum}`);
+
+// Test for sequences = false
+class A {
+  a() {
+    return document.a;
+  }
+}
+function inline_me() {
+  return 'abc';
+}
+console.error(new A().a(), inline_me(), some_global_var.thing, ngDevMode, ngI18nClosureMode);
+ngDevMode && console.log('ngDevMode is truthy');
+ngI18nClosureMode && console.log('ngI18nClosureMode is truthy');
+
+exports.A = A;

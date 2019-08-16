@@ -207,7 +207,8 @@ def _run_rollup(ctx, sources, config, output, map_output = None):
         args.add_joined(["%s:%s" % g for g in ctx.attr.globals.items()], join_with = ",")
 
     direct_inputs = [config]
-    direct_inputs += _filter_js_inputs(ctx.files.node_modules)
+    if hasattr(ctx.attr, "node_modules"):
+        direct_inputs += _filter_js_inputs(ctx.files.node_modules)
 
     # Also include files from npm fine grained deps as inputs.
     # These deps are identified by the NodeModuleSources provider.
@@ -227,7 +228,7 @@ def _run_rollup(ctx, sources, config, output, map_output = None):
 
     ctx.actions.run(
         progress_message = "Bundling JavaScript %s [rollup]" % output.short_path,
-        executable = ctx.executable._rollup,
+        executable = ctx.executable.rollup_bin,
         inputs = depset(direct_inputs, transitive = [sources]),
         outputs = outputs,
         arguments = [args],
@@ -755,6 +756,11 @@ ROLLUP_ATTRS = {
         """,
         default = Label("//:node_modules_none"),
     ),
+    "rollup_bin": attr.label(
+        executable = True,
+        cfg = "host",
+        default = Label("@build_bazel_rules_nodejs//internal/rollup:rollup"),
+    ),
     "deps": attr.label_list(
         doc = """Other rules that produce JavaScript outputs, such as `ts_library`.""",
         aspects = ROLLUP_DEPS_ASPECTS,
@@ -762,11 +768,6 @@ ROLLUP_ATTRS = {
     "_no_explore_html": attr.label(
         default = Label("@build_bazel_rules_nodejs//internal/rollup:no_explore.html"),
         allow_single_file = True,
-    ),
-    "_rollup": attr.label(
-        executable = True,
-        cfg = "host",
-        default = Label("@build_bazel_rules_nodejs//internal/rollup:rollup"),
     ),
     "_rollup_config_tmpl": attr.label(
         default = Label("@build_bazel_rules_nodejs//internal/rollup:rollup.config.js"),

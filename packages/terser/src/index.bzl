@@ -116,7 +116,7 @@ def _terser(ctx):
 
     result = [DefaultInfo(files = depset(outputs))]
     if modules.module_format:
-        result.extend(JSModuleInfo(module_format = modules.module_format, sources = depset(outputs)))
+        result.append(JSModuleInfo(module_format = modules.module_format, sources = depset(outputs)))
     return result
 
 terser_minified = rule(

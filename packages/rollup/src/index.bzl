@@ -1,14 +1,24 @@
 "Rule implementations to run rollup under Bazel"
 
+load("@build_bazel_rules_nodejs//:providers.bzl", "JSModuleInfo")
+
 ROLLUP_BUNDLE_ATTRS = {
     "srcs": attr.label_list(
         doc = "TODO: copy over",
         allow_files = [".js"],
     ),
+    "config_file": attr.label(
+        doc = "TODO",
+        allow_single_file = True,
+    ),
     "entry_point": attr.label(
         doc = "TODO: copy over",
         mandatory = True,
         allow_single_file = True,
+    ),
+    "format": attr.string(
+        doc = "Rollup --format argument: [amd, cjs, esm, iife, umd]",
+        default = "esm",
     ),
     "rollup_bin": attr.label(
         doc = "TODO",
@@ -23,11 +33,23 @@ ROLLUP_BUNDLE_OUTS = {
     "bundle": "%{name}.js",
 }
 
-def _run_rollup(inputs, outputs):
+def _path_without_extension(f):
+    return f.short_path[:-(len(f.extension) + 1)]
+
+def run_rollup(ctx, sources, config, output):
+    "TODO: doc - we want this function to be similar to existing one since ng_Package uses it"
+    args = ctx.actions.args()
+    args.add_all(["--input", _path_without_extension(ctx.file.entry_point)])
+    args.add_all(["--format", ctx.attr.format])
+    args.add_all(["--config", config.path])
+    args.add_all(["--output.file", output.path])
+    direct_inputs = [config, ctx.file.entry_point]
+    outputs = [output]
     ctx.actions.run(
-        inputs = [],
-        outputs = outputs,
+        progress_message = "Bundling JavaScript %s [rollup]" % output.short_path,
         executable = ctx.executable.rollup_bin,
+        inputs = depset(direct_inputs, transitive = [sources]),
+        outputs = outputs,
         arguments = [args],
     )
 
@@ -43,7 +65,8 @@ def _rollup_bundle(ctx):
     )
 
     return [
-        DefaultInfo(files = depset(outputs)),
+        DefaultInfo(files = depset([ctx.outputs.bundle])),
+        JSModuleInfo(module_format = ctx.attr.format, sources = depset([ctx.outputs.bundle])),
     ]
 
 rollup_bundle = rule(

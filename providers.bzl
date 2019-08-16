@@ -32,13 +32,14 @@ differing 'debug' attributes.
 
 JSModuleInfo = provider(
     fields = {
-        "module_format": "a string like cjs, umd.",
+        "module_format": "a string like [amd, cjs, esm, iife, umd]",
         "sourcemaps": "(optional) depset of sourcemap files",
         "sources": "depset of JavaScript files",
     },
 )
 
 def collect_js_modules(ctx):
+    """TODO: doc"""
     format = None
     result = []
     for src in ctx.attr.srcs:
