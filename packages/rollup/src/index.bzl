@@ -1,6 +1,24 @@
 "Rule implementations to run rollup under Bazel"
 
+load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
 load("@build_bazel_rules_nodejs//:providers.bzl", "JSModuleInfo")
+
+def rollup_bundle(name, formats = ["esm"], plugins = [], **kwargs):
+    nodejs_binary(
+        name = "_%s_rollup_bin" % name,
+        data = plugins + [
+            "@npm//rollup",
+        ],
+        # TODO: this will be broken when used outside this package. need index.from_src.bzl
+        entry_point = "@npm_bazel_rollup//:index.js",
+    )
+    for format in formats:
+        _rollup_bundle(
+            name = name + "." + format,
+            format = format,
+            rollup_bin = "_%s_rollup_bin" % name,
+            **kwargs
+        )
 
 ROLLUP_BUNDLE_ATTRS = {
     "srcs": attr.label_list(
@@ -53,7 +71,7 @@ def run_rollup(ctx, sources, config, output):
         arguments = [args],
     )
 
-def _rollup_bundle(ctx):
+def _rollup_bundle_impl(ctx):
     run_rollup(ctx, depset(ctx.files.srcs), ctx.file.config_file, ctx.outputs.bundle)
 
     return [
@@ -61,8 +79,8 @@ def _rollup_bundle(ctx):
         JSModuleInfo(module_format = ctx.attr.format, sources = depset([ctx.outputs.bundle])),
     ]
 
-rollup_bundle = rule(
-    implementation = _rollup_bundle,
+_rollup_bundle = rule(
+    implementation = _rollup_bundle_impl,
     attrs = ROLLUP_BUNDLE_ATTRS,
     outputs = ROLLUP_BUNDLE_OUTS,
 )

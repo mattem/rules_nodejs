@@ -1,35 +1,22 @@
-load("@build_bazel_rules_nodejs//:defs.bzl", "nodejs_binary")
 load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
 load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
 
-nodejs_binary(
-    name = "rollup_bin",
-    data = [
-        "@npm//rollup",
+rollup_bundle(
+    name = "bundle",
+    srcs = ["bar.js"],
+    config_file = "rollup.config.js",
+    entry_point = ":foo.js",
+    formats = [
+        "umd",
+        "cjs",
+    ],
+    plugins = ["@npm//rollup-plugin-json"],
+    deps = [
+        "//packages/rollup/test/fum:fumlib",
+        "@npm//hello",
         "@npm//rollup-plugin-json",
     ],
-    entry_point = "@npm_bazel_rollup//:index.js",
 )
-
-[
-    rollup_bundle(
-        name = "bundle.%s" % format,
-        srcs = ["bar.js"],
-        config_file = "rollup.config.js",
-        entry_point = ":foo.js",
-        format = format,
-        rollup_bin = ":rollup_bin",
-        deps = [
-            "//packages/rollup/test/fum:fumlib",
-            "@npm//hello",
-            "@npm//rollup-plugin-json",
-        ],
-    )
-    for format in [
-        "cjs",
-        "umd",
-    ]
-]
 
 jasmine_node_test(
     name = "test",

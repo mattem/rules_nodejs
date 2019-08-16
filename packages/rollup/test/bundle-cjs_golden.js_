@@ -13,9 +13,9 @@ var fumlib = require('fumlib');
 var hello = _interopDefault(require('hello'));
 var some_global_var = require('some_global_var');
 
-const json_key = "json_value";
-
 const name = 'Alice';
+
+const json_key = "json_value";
 
 console.log(`${hello}, ${name} in ${fumlib.fum} ${json_key}`);
 

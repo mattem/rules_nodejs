@@ -11,9 +11,9 @@
 
     hello = hello && hello.hasOwnProperty('default') ? hello['default'] : hello;
 
-    const json_key = "json_value";
-
     const name = 'Alice';
+
+    const json_key = "json_value";
 
     console.log(`${hello}, ${name} in ${fumlib.fum} ${json_key}`);
 
