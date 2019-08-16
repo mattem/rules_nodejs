@@ -19,18 +19,21 @@ ROLLUP_BUNDLE_ATTRS = {
     "deps": attr.label_list(),
 }
 
-ROLLUP_BUNDLE_OUTS = {}
+ROLLUP_BUNDLE_OUTS = {
+    "bundle": "%{name}.js",
+}
 
-def _rollup_bundle(ctx):
-    outputs = []
-    args = ctx.actions.Args()
-
+def _run_rollup(inputs, outputs):
     ctx.actions.run(
         inputs = [],
         outputs = outputs,
         executable = ctx.executable.rollup_bin,
         arguments = [args],
     )
+
+def _rollup_bundle(ctx):
+    outputs = [ctx.outputs.bundle]
+    args = ctx.actions.args()
 
     return [
         DefaultInfo(files = depset(outputs)),

@@ -1,12 +1,14 @@
 "Mock for testing terser interop"
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "JSInfo")
+load("@build_bazel_rules_nodejs//:providers.bzl", "JSEcmaScriptModuleInfo", "JSNamedModuleInfo")
 
 def _produces_jsinfo(ctx):
     return [
-        JSInfo(
-            named = depset(ctx.files.named_srcs),
-            esnext = depset(ctx.files.esnext_srcs),
+        JSNamedModuleInfo(
+            sources = depset(ctx.files.named_srcs),
+        ),
+        JSEcmaScriptModuleInfo(
+            sources = depset(ctx.files.esnext_srcs),
         ),
     ]
 

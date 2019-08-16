@@ -1,6 +1,6 @@
 "User configuration to run the terser binary under bazel"
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "JSInfo")
+load("@build_bazel_rules_nodejs//:providers.bzl", "JSModuleInfo", "collect_js_modules")
 
 TERSER_ATTRS = {
     "srcs": attr.label_list(
@@ -39,19 +39,8 @@ TERSER_ATTRS = {
 }
 
 TERSER_OUTS = {
-    # TODO: should this be {name}.mjs ?
     "optimized": "%{name}.js",
 }
-
-# Translate from the things we accept in the `src` attribute
-def _find_srcs(srcs, flavor):
-    srcfiles = []
-    for src in srcs:
-        if (JSInfo in src):
-            srcfiles.extend(getattr(src[JSInfo], flavor).to_list())
-        else:
-            srcfiles.extend(src.files.to_list())
-    return srcfiles
 
 # Converts a dict to a struct, recursing into a single level of nested dicts.
 # This allows users of compile_ts to modify or augment the returned dict before
@@ -62,13 +51,11 @@ def _dict_to_struct(d):
             d[key] = struct(**value)
     return struct(**d)
 
-def run_terser(ctx, flavor, output):
+def run_terser(ctx, srcs, output):
     """TODO: doc"""
 
     # CLI arguments; see https://www.npmjs.com/package/terser#command-line-usage
     args = ctx.actions.args()
-
-    srcs = _find_srcs(ctx.attr.srcs, flavor)
     args.add_all([src.path for src in srcs])
 
     outputs = [output]
@@ -110,7 +97,7 @@ def run_terser(ctx, flavor, output):
         args.add_all(["--source-map", ",".join(source_map_opts)])
         minify_options["sourceMap"] = {"filename": map_output.path}
 
-    opts = ctx.actions.declare_file("_%s.%s.minify_options.json" % (ctx.label.name, flavor))
+    opts = ctx.actions.declare_file("_%s.minify_options.json" % ctx.label.name)
     ctx.actions.write(opts, _dict_to_struct(minify_options).to_json())
     args.add_all(["--config-file", opts.path])
 
@@ -119,21 +106,18 @@ def run_terser(ctx, flavor, output):
         outputs = outputs,
         executable = ctx.executable.terser_bin,
         arguments = [args],
-        progress_message = "Optimizing %s JavaScript %s [terser]" % (flavor, output.short_path),
+        progress_message = "Optimizing JavaScript %s [terser]" % (output.short_path),
     )
     return outputs
 
 def _terser(ctx):
-    esnext_outputs = run_terser(ctx, "esnext", ctx.outputs.optimized)
+    modules = collect_js_modules(ctx)
+    outputs = run_terser(ctx, modules.sources, ctx.outputs.optimized)
 
-    # NB: this one will only run if some downstream rule requests the JSInfo provider
-    named_js = ctx.actions.declare_file(ctx.outputs.optimized.path.replace(".js", ".umd.js"))
-    named_outputs = run_terser(ctx, "named", named_js)
-
-    return [
-        DefaultInfo(files = depset(esnext_outputs)),
-        JSInfo(esnext = depset(esnext_outputs), named = depset(named_outputs)),
-    ]
+    result = [DefaultInfo(files = depset(outputs))]
+    if modules.module_format:
+        result.extend(JSModuleInfo(module_format = modules.module_format, sources = depset(outputs)))
+    return result
 
 terser_minified = rule(
     implementation = _terser,

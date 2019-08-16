@@ -2,7 +2,7 @@ load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
 load("@npm_bazel_terser//:index.from_src.bzl", "terser_minified")
 load(":consumes_jsinfo.bzl", "consumes_jsinfo")
 
-# Use the JSInfo provider to find inputs from *_bundle rule
+# Use the JS providers to find inputs from *_bundle rule
 load(":produces_jsinfo.bzl", "produces_jsinfo")
 
 produces_jsinfo(

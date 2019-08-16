@@ -30,51 +30,71 @@ If users really need to produce both in a single build, they'll need two rules w
 differing 'debug' attributes.
 """
 
-JSBundleInfo = provider(
+JSModuleInfo = provider(
     fields = {
-        "module_format": "a string like cjs, umd",
+        "module_format": "a string like cjs, umd.",
+        "sourcemaps": "(optional) depset of sourcemap files",
+        "sources": "depset of JavaScript files",
     },
 )
 
-JSInfo = provider(
-    doc = """Individual JS files. They may be produced by a rule like a transpile-to-JS compiler.
-""",
-    fields = {
-        # TODO: bike-shed the name
-        "esnext": """JavaScript files (and sourcemaps) that are intended to be consumed by downstream tooling.
+def collect_js_modules(ctx):
+    format = None
+    result = []
+    for src in ctx.attr.srcs:
+        if not JSModuleInfo in src:
+            result.extend(src.files.to_list())
+            continue
+        if not format:
+            format = src[JSModuleInfo].module_format
+        elif format != src[JSModuleInfo].module_format:
+            fail("a mix of module_format. TODO: better error message")
+        result.extend(src[JSModuleInfo].sources.to_list())
+    return struct(
+        module_format = format,
+        sources = result,
+    )
 
-They should use modern syntax and ESModules.
-These files should typically be named "foo.mjs"
-TODO: should we require that?
-
-Historical note: this was the typescript.es6_sources output""",
-
-        # TODO: bike-shed the name
-        "named": """JavaScript files whose module name is self-contained.
+JSNamedModuleInfo = provider(
+    doc = """JavaScript files whose module name is self-contained.
 
 For example named AMD/UMD or goog.module format.
 These files can be efficiently served with the concatjs bundler.
 These outputs should be named "foo.umd.js"
 (note that renaming it from "foo.js" doesn't affect the module id)
 
-Historical note: this was the typescript.es5_sources output""",
-
-        # TODO: do we need something like a third flavor?
-        # Or could this just be the DefaultInfo of tools that want to produce three flavors?
-        #"user": """JavaScript files whose format is user-controlled.
-        #        Consumers cannot make any assumptions about how to correctly handle it.""",
+Historical note: this was the typescript.es5_sources output.
+""",
+    fields = {
+        "sourcemaps": "(optional) depset of sourcemap files",
+        "sources": "depset of JavaScript files",
     },
 )
 
-TypingsInfo = provider(
-    doc = """The TypingsInfo provider allows JS rules to communicate typing information.
+JSEcmaScriptModuleInfo = provider(
+    doc = """JavaScript files (and sourcemaps) that are intended to be consumed by downstream tooling.
+
+They should use modern syntax and ESModules.
+These files should typically be named "foo.mjs"
+TODO: should we require that?
+
+Historical note: this was the typescript.es6_sources output""",
+    fields = {
+        "sourcemaps": "(optional) depset of sourcemap files",
+        "sources": "depset of JavaScript files",
+    },
+)
+
+DeclarationInfo = provider(
+    doc = """The DeclarationInfo provider allows JS rules to communicate typing information.
 
 TypeScript's .d.ts files are used as the interop format for describing types.
 
 The ts_library#deps attribute should require that this provider is attached.
 
-Note: historically this was in the string-typed "typescript" provider.
+Note: historically this was a subset of the string-typed "typescript" provider.
 """,
+    # TODO: should we have .d.ts.map files too?
     fields = {
         "declarations": "A depset of .d.ts files produced by this rule",
         "transitive_declarations": """A depset of .d.ts files produced by this rule and all its transitive dependencies.
@@ -82,4 +102,4 @@ This prevents needing an aspect in rules that consume the typings, which improve
     },
 )
 
-# TsickleInfo might be a needed provider to send tsickle_externs and type_blacklisted_declarations
+# TODO: TsickleInfo might be a needed provider to send tsickle_externs and type_blacklisted_declarations
