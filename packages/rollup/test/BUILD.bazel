@@ -1,22 +1,23 @@
 load("@npm_bazel_jasmine//:index.from_src.bzl", "jasmine_node_test")
-load("@npm_bazel_rollup//:index.bzl", "rollup_bundle")
+load("@npm_bazel_rollup//:index.from_src.bzl", "rollup_bundle")
 
-rollup_bundle(
-    name = "bundle",
-    srcs = ["bar.js"],
-    config_file = "rollup.config.js",
-    entry_point = ":foo.js",
-    formats = [
-        "umd",
+[
+    rollup_bundle(
+        name = "bundle.%s" % format,
+        srcs = ["bar.js"],
+        config_file = "rollup.config.js",
+        entry_point = ":foo.js",
+        format = format,
+        deps = [
+            "//packages/rollup/test/fum:fumlib",
+            "@npm//hello",
+        ],
+    )
+    for format in [
         "cjs",
-    ],
-    plugins = ["@npm//rollup-plugin-json"],
-    deps = [
-        "//packages/rollup/test/fum:fumlib",
-        "@npm//hello",
-        "@npm//rollup-plugin-json",
-    ],
-)
+        "umd",
+    ]
+]
 
 jasmine_node_test(
     name = "test",
