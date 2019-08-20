@@ -4,12 +4,12 @@
 const fs = require('fs');
 const DIR = 'build_bazel_rules_nodejs/packages/terser/test/jsinfo_srcs';
 
-describe('JSInfo provider in the srcs', () => {
+describe('JSModuleInfo provider in the srcs', () => {
   it('should produce the esnext as the default output', () => {
     const file = require.resolve(DIR + '/terser.js');
     expect(fs.readFileSync(file, 'utf-8')).toBe('import*as dep from"./dep";')
   });
-  it('should output a JSInfo provider if one is input', () => {
+  it('should output a JSModuleInfo provider if one is input', () => {
     const esnextFile = require.resolve(DIR + '/out.mjs');
     expect(fs.readFileSync(esnextFile, 'utf-8')).toBe('import*as dep from"./dep";');
     const namedFile = require.resolve(DIR + '/out.umd.js');

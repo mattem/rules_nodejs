@@ -26,6 +26,8 @@ jasmine_node_test(
     srcs = [
         "terser_spec.js",
     ],
+    # TODO(alexeagle): fix this up
+    tags = ["manual"],
     deps = [
         ":out",
         ":terser.js",

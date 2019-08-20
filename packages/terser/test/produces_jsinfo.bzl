@@ -1,6 +1,6 @@
 "Mock for testing terser interop"
 
-load("@build_bazel_rules_nodejs//:providers.bzl", "JSInfo")
+load("@build_bazel_rules_nodejs//:providers.bzl", "JSModuleInfo")
 
 def _produces_jsinfo(ctx):
     named_js = ctx.actions.declare_file(ctx.name + ".js")
@@ -24,8 +24,9 @@ def _produces_jsinfo(ctx):
     ctx.actions.write(esnext_js, """import * as dep from './dep';""")
 
     return [
-        JSInfo(
-            named = depset(named_js),
+        JSModuleInfo(
+            sources = depset(named_js),
+            module_format = "umd",
         ),
     ]
 
