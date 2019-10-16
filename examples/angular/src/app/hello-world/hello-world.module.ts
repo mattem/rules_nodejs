@@ -1,3 +1,5 @@
+import { CovalentHighlightModule } from '@covalent/highlight';
+
 import {NgModule} from '@angular/core';
 import {FormsModule} from '@angular/forms';
 import {RouterModule} from '@angular/router';
@@ -9,6 +11,7 @@ import {HelloWorldComponent} from './hello-world.component';
   declarations: [HelloWorldComponent],
   imports: [
     FormsModule, RouterModule, MaterialModule,
+    CovalentHighlightModule,
     RouterModule.forChild([{path: '', component: HelloWorldComponent}])
   ],
   exports: [HelloWorldComponent],
