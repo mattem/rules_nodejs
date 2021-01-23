@@ -129,6 +129,11 @@ browser_repositories(
     firefox = True,
 )
 
+# Setup esbuild dependencies
+load("//packages/esbuild:index.bzl", "esbuild_dependencies")
+
+esbuild_dependencies()
+
 #
 # Dependencies to run stardoc & generating documentation
 #
